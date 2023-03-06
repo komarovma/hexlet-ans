@@ -1,0 +1,26 @@
+- hosts: webservers
+  tasks:
+    - name: install nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: latest
+      become: yes
+
+    - name: update nginx config
+      ansible.builtin.copy:
+        src: /home/mike/hexlet-ans/nginx/nginx.conf
+        dest: /etc/nginx/nginx.conf
+      notify:
+        - restart nginx
+      become: yes
+    - name: update nginx html
+      ansible.builtin.copy:
+        src: /home/mike/hexlet-ans/nginx/index.html
+        dest: /usr/share/nginx/html/index.html
+      become: yes
+  handlers:
+    - name: restart nginx
+      ansible.builtin.service:
+        name: nginx
+        state: reloaded
+      become: yes
