@@ -1,0 +1,41 @@
+- hosts: webservers
+  vars:
+    nginx_port: 8888
+    root_dir: /usr/share/nginx/html
+    dtime : "{{ ansible_date_time.date }}"
+    server_name: Welcome to host "{{ansible_hostname}}"!
+  tasks:
+    - name: install cowsay
+      ansible.builtin.apt:
+        name: cowsay
+        state: latest      
+      become: yes
+
+    - name: Cowsay cowsay_result
+      ansible.builtin.shell: cowsay "This is server server_name!"
+      register: cowsay_result
+
+    - name: install nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: latest
+      become: yes
+
+    - name: update nginx config
+      ansible.builtin.template:
+        src: /home/mike/hexlet-ans/nginx/nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+      notify:
+        - restart nginx
+      become: yes
+    - name: update nginx html
+      ansible.builtin.template:
+        src: /home/mike/hexlet-ans/nginx/index.html_13.j2
+        dest: "{{root_dir}}/index.html"
+      become: yes
+  handlers:
+    - name: restart nginx
+      ansible.builtin.service:
+        name: nginx
+        state: reloaded
+      become: yes
